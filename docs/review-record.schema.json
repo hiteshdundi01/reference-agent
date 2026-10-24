@@ -1,0 +1,218 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Cross-model review record",
+  "description": "Schema validity is necessary, not sufficient: the eligibility validator in scripts/review.mjs decides whether a record qualifies (REVIEW_PROTOCOL.md §7).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "unit",
+    "kind",
+    "scope",
+    "payload_id",
+    "high_stakes",
+    "implementer",
+    "authorship",
+    "bootstrap",
+    "reviews"
+  ],
+  "properties": {
+    "unit": { "type": "string", "description": "Phase, PR or milestone id" },
+    "kind": {
+      "enum": ["code", "design", "whole_branch", "delta", "delegation_check"]
+    },
+    "scope": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "base", "tree"],
+      "properties": {
+        "kind": {
+          "enum": ["staged", "pr", "whole_branch", "initial", "delta"]
+        },
+        "base": {
+          "type": "string",
+          "description": "Commit or tree id; the empty tree for initial"
+        },
+        "tree": {
+          "type": "string",
+          "description": "Reviewed tree id; the snapshot id"
+        }
+      }
+    },
+    "payload_id": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{40}([0-9a-f]{24})?$",
+      "description": "Tree id of the reviewed tree minus attestation paths"
+    },
+    "high_stakes": { "type": "boolean" },
+    "high_stakes_matches": { "type": "array", "items": { "type": "string" } },
+    "inspection_gaps": {
+      "type": "array",
+      "description": "Excluded changes shown only as metadata",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["path", "change", "reason"],
+        "properties": {
+          "path": { "type": "string" },
+          "change": { "enum": ["added", "modified", "deleted", "renamed"] },
+          "reason": { "enum": ["secret", "personal_data", "sealed"] },
+          "high_stakes": { "type": "boolean" },
+          "human_approval": { "type": "string" }
+        }
+      }
+    },
+    "implementer": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["family", "session"],
+      "properties": {
+        "family": { "enum": ["gpt", "argon", "other", "human"] },
+        "model": { "type": "string" },
+        "session": { "type": ["string", "null"] }
+      }
+    },
+    "authorship": {
+      "type": "array",
+      "description": "Every contribution, with the author's real family and session",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["path", "family", "session", "role"],
+        "properties": {
+          "path": { "type": "string" },
+          "family": { "enum": ["gpt", "argon", "other", "human"] },
+          "session": { "type": ["string", "null"] },
+          "role": { "enum": ["implementer", "delegate"] }
+        }
+      }
+    },
+    "bootstrap": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["active"],
+      "properties": {
+        "active": {
+          "type": "boolean",
+          "description": "True only for the review tooling's own commits, reviewed by the uncommitted candidate tooling under enforced isolation"
+        },
+        "tooling_tree": {
+          "type": "string",
+          "description": "Required when active: tree id of the candidate tooling that ran the review"
+        },
+        "smoke_tests": {
+          "type": "string",
+          "description": "Required when active: command and result"
+        }
+      }
+    },
+    "reviews": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "family",
+          "requested_model",
+          "resolved_model",
+          "effort",
+          "attempt",
+          "isolation",
+          "evidence",
+          "verdict",
+          "coverage",
+          "findings"
+        ],
+        "properties": {
+          "family": { "enum": ["gpt", "argon"] },
+          "requested_model": { "type": "string" },
+          "resolved_model": {
+            "type": ["string", "null"],
+            "description": "From launcher evidence only; null if not evidenced"
+          },
+          "effort": { "type": "string" },
+          "session_id": {
+            "type": ["string", "null"],
+            "description": "Null for attempts that failed before a session existed"
+          },
+          "attempt": { "type": "integer", "minimum": 1 },
+          "isolation": { "enum": ["enforced", "manual"] },
+          "tooling_version": { "type": "string" },
+          "evidence": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["identity", "tool_calls"],
+            "properties": {
+              "identity": {
+                "type": ["string", "null"],
+                "description": "Codex header lines or agy --log-file resolution lines"
+              },
+              "tool_calls": {
+                "type": ["integer", "null"],
+                "description": "Tool calls seen in the transcript/log; null if unknown"
+              },
+              "log_ref": { "type": "string" }
+            }
+          },
+          "verdict": { "enum": ["PASS", "BLOCK", "INCOMPLETE"] },
+          "failure": {
+            "type": "string",
+            "description": "Set for failed/empty/malformed/truncated/wrong-model attempts"
+          },
+          "truncated": { "type": "boolean" },
+          "coverage": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "Paths/artifacts this review covers"
+          },
+          "findings": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["id", "severity", "summary", "disposition"],
+              "properties": {
+                "id": { "type": "string" },
+                "severity": { "enum": ["blocker", "major", "minor", "nit"] },
+                "location": { "type": "string" },
+                "summary": { "type": "string" },
+                "disposition": {
+                  "enum": [
+                    "open",
+                    "fixed",
+                    "disputed",
+                    "closed_by_reviewer",
+                    "adjudicated_applies",
+                    "adjudicated_not_applicable"
+                  ]
+                },
+                "disposition_ref": {
+                  "type": "string",
+                  "description": "Fix commit, dispute reason or adjudication note"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "qualifying": {
+      "type": "boolean",
+      "description": "Written only by the eligibility validator"
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "bootstrap": { "properties": { "active": { "const": true } } }
+        }
+      },
+      "then": {
+        "properties": {
+          "bootstrap": { "required": ["active", "tooling_tree", "smoke_tests"] }
+        }
+      }
+    }
+  ]
+}

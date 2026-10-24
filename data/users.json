@@ -1,0 +1,5 @@
+[
+  { "email": "riley.chen@acme.example", "name": "Riley Chen", "role": "rep" },
+  { "email": "sam.okafor@acme.example", "name": "Sam Okafor", "role": "rep" },
+  { "email": "morgan.diaz@acme.example", "name": "Morgan Diaz", "role": "supervisor" }
+]

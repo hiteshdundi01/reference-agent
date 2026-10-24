@@ -1,0 +1,8 @@
+[
+  { "id": "CUS-201", "name": "Avery Brooks", "email": "avery@example.com", "since": "2022-03-14" },
+  { "id": "CUS-202", "name": "Jordan Patel", "email": "jordan@example.com", "since": "2024-07-02" },
+  { "id": "CUS-203", "name": "Casey Nguyen", "email": "casey@example.com", "since": "2019-11-21" },
+  { "id": "CUS-204", "name": "Taylor Reed", "email": "taylor@example.com", "since": "2025-01-09" },
+  { "id": "CUS-205", "name": "Quinn Alvarez", "email": "quinn@example.com", "since": "2023-05-30" },
+  { "id": "CUS-206", "name": "Drew Hoffman", "email": "drew@example.com", "since": "2021-08-17" }
+]

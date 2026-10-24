@@ -1,0 +1,71 @@
+{
+  "name": "reference-agent",
+  "private": true,
+  "license": "MIT",
+  "type": "module",
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "scripts": {
+    "prepare": "lefthook install && playwright install chromium",
+    "dev": "concurrently -k -n backend,agent,dashboard npm:dev:backend npm:dev:agent npm:dev:dashboard",
+    "dev:backend": "uv run --env-file .env -m uvicorn backend.main:app --reload --reload-dir backend",
+    "dev:agent": "uv run --env-file .env -m uvicorn agent.entrypoint:app --port 8080 --reload --reload-dir agent",
+    "dev:dashboard": "vite dashboard",
+    "build": "vite build dashboard",
+    "seed": "uv run --env-file .env -m backend.seed",
+    "format": "uv run ruff format && prettier --write -u dashboard e2e scripts *.config.*",
+    "check": "concurrently -g \"npm:check:*\" && npm run e2e",
+    "check:python": "uv run ruff format --check && uv run ruff check && pyright --threads && uv run pytest -q -n auto --dist worksteal",
+    "check:server": "uv run --isolated --only-group server python -c \"import backend.main\"",
+    "check:agent": "uv run --isolated --only-group agent python -c \"import agent.entrypoint\"",
+    "check:ts": "prettier --check -u dashboard e2e scripts *.config.* && eslint dashboard e2e scripts *.config.js *.config.ts && tsc && vitest run --root dashboard --coverage",
+    "check:scripts": "node --test \"scripts/**/*.test.mjs\"",
+    "e2e": "playwright test"
+  },
+  "dependencies": {
+    "@fontsource-variable/inter": "^5.3.0",
+    "@fontsource-variable/jetbrains-mono": "^5.3.0",
+    "lucide-react": "^1.61.0",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "react-router": "^8.5.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@playwright/test": "^1.64.1",
+    "@testing-library/dom": "^10.4.2",
+    "@testing-library/react": "^16.3.3",
+    "@testing-library/user-event": "^14.6.8",
+    "@types/node": "^26.6.5",
+    "@types/picomatch": "^4.0.3",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react": "^6.1.2",
+    "@vitest/coverage-v8": "^5.0.5",
+    "@vitest/eslint-plugin": "^1.6.28",
+    "concurrently": "^10.0.6",
+    "eslint": "^10.13.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-jsx-a11y-x": "^0.2.0",
+    "eslint-plugin-playwright": "^2.12.1",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "eslint-plugin-react-refresh": "^0.5.7",
+    "eslint-plugin-sonarjs": "^4.2.2",
+    "globals": "^17.13.0",
+    "jsdom": "^30.1.3",
+    "lefthook": "^2.2.2",
+    "picomatch": "^4.0.7",
+    "prettier": "^3.9.10",
+    "pyright": "^1.1.414",
+    "typescript": "6.0.3",
+    "typescript-eslint": "^8.72.0",
+    "vite": "^8.3.5",
+    "vitest": "^5.0.5",
+    "yaml": "^2.9.1"
+  },
+  "allowScripts": {
+    "lefthook": false,
+    "fsevents": false
+  }
+}

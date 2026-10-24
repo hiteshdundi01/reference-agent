@@ -1,0 +1,8 @@
+[
+  { "id": "REQ-0901", "order_id": "ORD-4101", "submitted_at": "2026-01-20T10:00:00Z", "amount": 64.0, "evidence": "none",
+    "reason": "The throw arrived with a hole in it.", "decided_at": "2026-01-21T09:00:00Z", "section": "Section 3" },
+  { "id": "REQ-0902", "order_id": "ORD-4102", "submitted_at": "2026-04-09T10:00:00Z", "amount": 40.0, "evidence": "none",
+    "reason": "The bowl came broken.", "decided_at": "2026-04-10T09:00:00Z", "section": "Section 3" },
+  { "id": "REQ-0903", "order_id": "ORD-4103", "submitted_at": "2026-07-25T10:00:00Z", "amount": 55.0, "evidence": "none",
+    "reason": "The clock stopped after a week.", "decided_at": "2026-07-26T09:00:00Z", "section": "Section 3" }
+]

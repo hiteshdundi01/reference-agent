@@ -1,0 +1,69 @@
+[project]
+name = "reference-agent"
+version = "0.1.0"
+requires-python = ">=3.13"
+license = "MIT"
+dependencies = []
+
+[dependency-groups]
+agent = [
+    "fastapi>=0.162.0",
+    "httpx>=0.28.1",
+    "langchain>=1.4.7",
+    "langchain-anthropic>=1.7.6",
+    "langchain-openai>=1.7.2",
+    "langgraph>=1.2.17",
+    "langgraph-checkpoint-sqlite>=3.1.2",
+    "uvicorn>=0.54.0",
+]
+dev = [
+    "pytest>=9.1.1",
+    "pytest-cov>=7.1.0",
+    "pytest-xdist>=3.8.0",
+    "ruff>=0.17.2",
+]
+server = [
+    "fastapi>=0.162.0",
+    "httpx>=0.28.1",
+    "pwdlib[argon2]>=0.3.1",
+    "pyjwt>=2.15.1",
+    "sqlalchemy>=2.1.6",
+    "uvicorn>=0.54.0",
+]
+
+[tool.uv]
+# `uv sync` installs every group; each deployable's group is checked on its own.
+default-groups = "all"
+
+[tool.ruff]
+include = ["backend/**/*.py", "agent/**/*.py", "*.py"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "SIM", "UP", "PL", "S", "PT", "FAST", "C90", "PLR1702"]
+preview = true
+explicit-preview-rules = true
+
+[tool.ruff.lint.mccabe]
+max-complexity = 10
+
+[tool.ruff.lint.per-file-ignores]
+"*/tests/*" = ["S101", "PLR2004"]
+
+[tool.pytest.ini_options]
+testpaths = ["backend", "agent"]
+pythonpath = ["."]
+addopts = "--import-mode=importlib --cov --cov-report=term-missing"
+
+[tool.coverage.run]
+core = "sysmon"
+source = ["backend", "agent"]
+omit = ["*/tests/*"]
+
+[tool.coverage.report]
+fail_under = 80
+
+[tool.pyright]
+include = ["backend", "agent", "conftest.py", "api_rules.py"]
+venvPath = "."
+venv = ".venv"
+pythonVersion = "3.13"
