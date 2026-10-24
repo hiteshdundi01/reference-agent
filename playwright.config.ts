@@ -35,7 +35,9 @@ export default defineConfig({
       env: { PORT: new URL(AGENT_STAND_IN).port, APP_API: BACKEND, AGENT_KEY },
     },
     {
-      command: `npx vite dashboard --port ${new URL(DASHBOARD).port} --strictPort`,
+      // On the address the tests use: Vite's own default, localhost, can mean
+      // ::1 alone on some machines.
+      command: `npx vite dashboard --host 127.0.0.1 --port ${new URL(DASHBOARD).port} --strictPort`,
       url: DASHBOARD,
       env: { APP_API: BACKEND },
     },

@@ -2,7 +2,7 @@
 paths, and index.html for every other path outside /api, so the dashboard's own
 routes load."""
 
-from pathlib import Path
+from pathlib import Path, PurePath
 
 from fastapi import FastAPI
 from fastapi.responses import FileResponse
@@ -19,7 +19,9 @@ class DashboardFiles(StaticFiles):
         try:
             return await super().get_response(path, scope)
         except HTTPException as error:
-            if error.status_code != HTTP_404_NOT_FOUND or path.startswith("api/"):
+            # The path has the system's separators, so it is compared as POSIX.
+            api = PurePath(path).as_posix().startswith("api/")
+            if error.status_code != HTTP_404_NOT_FOUND or api:
                 raise
             return FileResponse(Path(str(self.directory)) / "index.html")
 
